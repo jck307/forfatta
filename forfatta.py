@@ -1,7 +1,7 @@
 import os
 
-from pycog.term import *
-from pycog.const import *
+from term import *
+from const import *
 
 TANKSTRECK = "–"
 SPACE_TAB = " " * 4
