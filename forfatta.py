@@ -62,10 +62,16 @@ def main():
 
     def backspace():
         nonlocal sentence
+        nonlocal in_quote
 
         if 0 < len(sentence):
             is_tab = sentence.endswith(SPACE_TAB)
             n = len(SPACE_TAB) if is_tab else 1
+            if n == 1:
+                if sentence[-1] == "»":
+                    in_quote = False
+                elif sentence[-1] == "«":
+                    in_quote = True
             sentence = sentence[:-n]
             render_sentence()
 
