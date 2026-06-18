@@ -21,6 +21,8 @@ def main():
         raw = sentence
         rendered = ""
 
+        did_wrap = term_cols-1 < len(raw)
+
         while term_cols-1 < len(raw):
             if raw[term_cols-1].isspace():
                 index = term_cols
@@ -33,7 +35,7 @@ def main():
             rendered += raw[:index].rstrip() + CUR_DOWN_ONE + CUR_COL_HOME
             raw = raw[index+1:].lstrip()
 
-        rendered += raw.lstrip()
+        rendered += raw.lstrip() if did_wrap else raw
         write(ERASE_SCREEN + CUR_HOME + rendered)
         flush()
 
