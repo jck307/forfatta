@@ -14,13 +14,14 @@ def main():
     in_quote = False
     dialog = False
     clear_next = False
+    tab_inserted = False
 
     def clear():
         write(ERASE_SCREEN + CUR_HOME)
         flush()
 
     def render_sentence():
-        raw = sentence
+        raw = (SPACE_TAB if tab_inserted else "") + sentence
         rendered = ""
 
         did_wrap = term_cols-1 < len(raw)
@@ -45,6 +46,7 @@ def main():
         nonlocal text
         nonlocal sentence
         nonlocal dialog
+        nonlocal tab_inserted
 
         if 0 < len(sentence):
             if sentence[-1].isalnum():
@@ -53,6 +55,7 @@ def main():
 
         text += sentence + (" " if not dialog else "\n" + SPACE_TAB)
         sentence = ""
+        tab_inserted = dialog
         dialog = False
 
         clear()
@@ -129,8 +132,9 @@ def main():
                     else:
                         if text == "":
                             prepend = SPACE_TAB
-                        elif not text.endswith("\n" + SPACE_TAB):
-                            prepend = "\n" + SPACE_TAB
+                        elif not text.endswith(SPACE_TAB):
+                            text += "\n"
+                            prepend = SPACE_TAB
                         else:
                             prepend = ""
                         sentence = prepend + TANKSTRECK + " "
