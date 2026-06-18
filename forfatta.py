@@ -1,3 +1,5 @@
+#!/bin/python
+
 import os
 
 from term import *
