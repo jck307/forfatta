@@ -1,6 +1,8 @@
 #!/bin/python
 
 import os
+import sys
+import datetime
 
 from term import *
 from const import *
@@ -47,6 +49,8 @@ def main():
         nonlocal sentence
         nonlocal dialog
         nonlocal tab_inserted
+
+        sentence = sentence.strip()
 
         if 0 < len(sentence):
             if sentence[-1].isalnum():
@@ -180,4 +184,12 @@ finally:
 
 os.system("clear")
 print(result)
+
+if 1 < len(sys.argv):
+    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]")
+
+    with open(sys.argv[1], "a") as file:
+        file.write(timestamp + "\n" + result + "\n")
+
+    print("saved to", sys.argv[1])
 
