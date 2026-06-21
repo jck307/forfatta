@@ -189,11 +189,11 @@ finally:
 os.system("clear")
 print(result)
 
-if 1 < len(sys.argv):
-    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]")
+filename = sys.argv[1] if 1 < len(sys.argv) else "text.txt"
+timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]")
 
-    with open(sys.argv[1], "a") as file:
-        file.write(timestamp + "\n" + result + "\n")
+with open(filename, "a") as file:
+    file.write(timestamp + "\n" + result + "\n")
 
-    print("saved to", sys.argv[1])
+print("saved to", filename)
 
