@@ -3,6 +3,7 @@
 import os
 import sys
 import datetime
+import argparse
 
 csfp = os.path.abspath(os.path.dirname(__file__))
 if csfp not in sys.path:
@@ -165,6 +166,12 @@ def main():
 
     return text.replace(SPACE_TAB, "\t").rstrip()
 
+parser = argparse.ArgumentParser(color=False)
+parser.add_argument("filename", default="output.txt", nargs="?")
+parser.add_argument("--no-save", action="store_true")
+parser.add_argument("--no-timestamp", action="store_true")
+args = parser.parse_args()
+
 init()
 
 try:
@@ -175,11 +182,11 @@ finally:
 os.system("clear")
 print(result)
 
-filename = sys.argv[1] if 1 < len(sys.argv) else "text.txt"
-timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]")
+if not args.no_save:
+    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]\n") if not args.no_timestamp else ""
 
-with open(filename, "a") as file:
-    file.write(timestamp + "\n" + result + "\n")
+    with open(args.filename, "a") as file:
+        file.write(timestamp + result + "\n")
 
-print("saved to", filename)
+    print("saved to", args.filename)
 
