@@ -14,6 +14,8 @@ from const import *
 
 TANKSTRECK = "–"
 SPACE_TAB = " " * 4
+CLOSING_QUOTE = "«"
+OPENING_QUOTE = "»"
 
 def main():
     text = ""
@@ -41,7 +43,7 @@ def main():
                     break
 
             rendered += raw[:index].rstrip() + CUR_DOWN_ONE + CUR_COL_HOME
-            raw = raw[index+1:].lstrip()
+            raw = raw[index:].lstrip()
 
         rendered += raw.lstrip() if did_wrap else raw
         write(ERASE_SCREEN + CUR_HOME + rendered)
@@ -69,9 +71,9 @@ def main():
             is_tab = sentence.endswith(SPACE_TAB)
             n = len(SPACE_TAB) if is_tab else 1
             if n == 1:
-                if sentence[-1] == "»":
+                if sentence[-1] == OPENING_QUOTE:
                     in_quote = False
-                elif sentence[-1] == "«":
+                elif sentence[-1] == CLOSING_QUOTE:
                     in_quote = True
             sentence = sentence[:-n]
             render_sentence()
@@ -145,7 +147,7 @@ def main():
                     continue
 
         elif char == '"':
-            char = "«" if in_quote else "»"
+            char = CLOSING_QUOTE if in_quote else OPENING_QUOTE
             in_quote = not in_quote
 
         elif char == " ":
@@ -180,6 +182,10 @@ finally:
     restore()
 
 os.system("clear")
+
+if result.isspace() or result == "":
+    exit()
+
 print(result)
 
 if not args.no_save:
