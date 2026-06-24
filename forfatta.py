@@ -14,21 +14,44 @@ from const import *
 
 TANKSTRECK = "–"
 SPACE_TAB = " " * 4
-CLOSING_QUOTE = "«"
 OPENING_QUOTE = "»"
+CLOSING_QUOTE = "«"
 
 def main():
     text = ""
     sentence = ""
+    cursor = 0
     in_quote = False
-    clear_next = False
+    alnum_typed = False
 
-    def clear():
-        write(ERASE_SCREEN + CUR_HOME)
-        flush()
+    def add_sentence():
+        nonlocal text, sentence, cursor, alnum_typed
 
-    def render_sentence():
-        raw = sentence
+        if sentence == "" or sentence.isspace():
+            text += "\n"
+            return
+
+        sentence = sentence.rstrip()
+        text += sentence + (". " if sentence[-1].isalnum() else " ")
+        sentence = ""
+        cursor = 0
+        alnum_typed = False
+
+    def backspace():
+        nonlocal sentence, cursor, in_quote
+
+        n = len(SPACE_TAB) if sentence[cursor-len(SPACE_TAB):cursor] == SPACE_TAB else 1
+        if n == 1:
+            if sentence[cursor-1] == OPENING_QUOTE:
+                in_quote = False
+            elif sentence[cursor-1] == CLOSING_QUOTE:
+                in_quote = True
+
+        sentence = sentence[:cursor-n] + sentence[cursor:]
+        cursor = max(0, cursor - n)
+
+    def render(text):
+        raw = text
         rendered = ""
 
         did_wrap = term_cols-1 < len(raw)
@@ -46,125 +69,97 @@ def main():
             raw = raw[index:].lstrip()
 
         rendered += raw.lstrip() if did_wrap else raw
-        write(ERASE_SCREEN + CUR_HOME + rendered)
+        rendered = rendered.replace("\n", CUR_DOWN_ONE + CUR_COL_HOME)
+        write(ERASE_SCREEN + CUR_HOME + rendered
+            + CUR_SET.format(1 + cursor // term_cols, 1 + cursor % term_cols))
         flush()
 
-    def add_sentence():
-        nonlocal text
-        nonlocal sentence
-
-        if 0 < len(sentence):
-            if sentence[-1].isalnum():
-                sentence += "."
-                write(".")
-
-        text += sentence + " "
-        sentence = ""
-
-        clear()
-
-    def backspace():
-        nonlocal sentence
-        nonlocal in_quote
-
-        if 0 < len(sentence):
-            is_tab = sentence.endswith(SPACE_TAB)
-            n = len(SPACE_TAB) if is_tab else 1
-            if n == 1:
-                if sentence[-1] == OPENING_QUOTE:
-                    in_quote = False
-                elif sentence[-1] == CLOSING_QUOTE:
-                    in_quote = True
-            sentence = sentence[:-n]
-            render_sentence()
-
     while True:
-        char = read()
-
-        if clear_next:
-            clear_next = False
-            write(CUR_SHOW)
-            clear()
-
         term_cols, _ = os.get_terminal_size()
+        render(sentence)
+        char = read()
 
         if char in [ESCAPE, CTRL_C]:
             add_sentence()
             break
 
+        elif char == CTRL_P:
+            write(CUR_HIDE)
+            render(text)
+            while read() != CTRL_P:
+                pass
+            write(CUR_SHOW)
+            continue
+
         elif char == BACKSPACE:
             backspace()
-            flush()
             continue
 
         elif char == CTRL_BACKSPACE:
-            while 0 < len(sentence) and sentence[-1] == " ":
+            while cursor != 0 and sentence[cursor-1] == " ":
                 backspace()
-            while 0 < len(sentence) and sentence[-1] != " ":
+            while cursor != 0 and sentence[cursor-1] != " ":
                 backspace()
-            flush()
             continue
 
         elif char == RETURN:
-            if sentence == "":
-                ASTERISM = f"* *{CUR_DOWN_ONE}{CUR_COL_HOME} *" + CUR_HIDE
-                if text.endswith("\n" + SPACE_TAB):
-                    text = text[:-1] + "\n"
-                    write(ASTERISM)
-                    flush()
-                    clear_next = True
-                else:
-                    if not text.endswith("\n"):
-                        text += "\n" + SPACE_TAB
-                        write("*" + CUR_HIDE)
-                    else:
-                        write(ASTERISM)
-                    flush()
-                    clear_next = True
-            else:
-                add_sentence()
+            add_sentence()
+            continue
+
+        elif char == ARROW_LEFT:
+            cursor = max(0, cursor - 1)
+            continue
+
+        elif char == ARROW_RIGHT:
+            cursor = min(len(sentence), cursor + 1)
+            continue
+
+        elif char == CTRL_ARROW_LEFT:
+            try:
+                cursor = sentence.rindex(" ", 0, cursor)
+            except ValueError:
+                cursor = 0
+            continue
+
+        elif char == CTRL_ARROW_RIGHT:
+            try:
+                cursor = sentence.index(" ", cursor+1)
+            except ValueError:
+                cursor = len(sentence)
+            continue
+
+        elif char in HOME:
+            cursor = 0
+            continue
+
+        elif char in END:
+            cursor = len(sentence)
             continue
 
         elif char == "\t":
-            if not sentence.endswith(" "):
-                sentence += SPACE_TAB
-                write(SPACE_TAB)
-                flush()
-            continue
-
-        elif char == "-":
-            if 0 < len(sentence):
-                if sentence[-1] == "-":
-                    if len(sentence) != 1:
-                        sentence = sentence[:-1] + TANKSTRECK
-                        write(CUR_LEFT_ONE + TANKSTRECK)
-                    else:
-                        if 0 < len(text):
-                            text += "\n"
-                        sentence = SPACE_TAB + TANKSTRECK + " "
-                        write(ERASE_LINE + CUR_HOME + SPACE_TAB + TANKSTRECK + " ")
-                    flush()
-                    continue
-
+            char = SPACE_TAB
+        
         elif char == '"':
             char = CLOSING_QUOTE if in_quote else OPENING_QUOTE
             in_quote = not in_quote
 
-        elif char == " ":
-            if sentence.endswith(" "):
+        elif char == "-":
+            if cursor != 0 and sentence[cursor-1] == "-":
+                sentence = sentence[:cursor-1] + TANKSTRECK \
+                    + (" " if cursor == 1 else "") + sentence[cursor:]
+                if cursor == 1:
+                    cursor += 1
+                    if text == "" or text.endswith("\n"):
+                        sentence = SPACE_TAB + sentence
+                        cursor += len(SPACE_TAB)
                 continue
 
-        alnum_found = False
-        for prev_char in sentence:
-            if prev_char.isalnum():
-                alnum_found = True
-                break
-
-        if not alnum_found:
+        if not alnum_typed and char.isalnum():
+            alnum_typed = True
             char = char.upper()
 
-        sentence += char
-        render_sentence()
+        sentence = sentence[:cursor] + char + sentence[cursor:]
+        cursor += len(char)
 
     return text.replace(SPACE_TAB, "\t").rstrip()
 
