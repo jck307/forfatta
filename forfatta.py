@@ -22,10 +22,9 @@ def main():
     sentence = ""
     cursor = 0
     in_quote = False
-    alnum_typed = False
 
     def add_sentence():
-        nonlocal text, sentence, cursor, alnum_typed
+        nonlocal text, sentence, cursor
 
         if sentence == "" or sentence.isspace():
             text += "\n"
@@ -53,7 +52,6 @@ def main():
     def render(text):
         raw = text
         rendered = ""
-
         did_wrap = term_cols-1 < len(raw)
 
         while term_cols-1 < len(raw):
@@ -154,8 +152,13 @@ def main():
                         cursor += len(SPACE_TAB)
                 continue
 
-        if not alnum_typed and char.isalnum():
-            alnum_typed = True
+        alnum_found = False
+        for prev_char in sentence:
+            if prev_char.isalnum():
+                alnum_found = True
+                break
+
+        if not alnum_found:
             char = char.upper()
 
         sentence = sentence[:cursor] + char + sentence[cursor:]
