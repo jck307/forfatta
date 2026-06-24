@@ -34,7 +34,6 @@ def main():
         text += sentence + (". " if sentence[-1].isalnum() else " ")
         sentence = ""
         cursor = 0
-        alnum_typed = False
 
     def backspace():
         nonlocal sentence, cursor, in_quote
