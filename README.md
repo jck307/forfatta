@@ -26,6 +26,6 @@ options:
 - Ctrl-binds (backspace, arrows)
 - Ctrl-P (a toggle) lets you inspect written text
 - `"` is replaced with `»` and `«` (for opening and closing respectively)
-- `--` is replaced with `–`
+- Two hyphens (--) are replaced with a dash (–)
 - Files are appended to
 - `output.txt` is saved to unless a filename is given or `--no-save` is used
