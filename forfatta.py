@@ -26,14 +26,14 @@ def main():
     def add_sentence():
         nonlocal text, sentence, cursor
 
-        if sentence == "" or sentence.isspace():
+        if sentence == "":
             text += "\n"
-            return
 
-        sentence = sentence.rstrip()
-        text += sentence + (". " if sentence[-1].isalnum() else " ")
-        sentence = ""
-        cursor = 0
+        elif not sentence.isspace():
+            sentence = sentence.rstrip()
+            text += sentence + (". " if sentence[-1].isalnum() else " ")
+            sentence = ""
+            cursor = 0
 
     def backspace():
         nonlocal sentence, cursor, in_quote
@@ -49,7 +49,7 @@ def main():
         cursor = max(0, cursor - n)
 
     def render(text):
-        raw = text
+        raw = text[:cursor] + CUR_SAVE + text[cursor:]
         rendered = ""
         did_wrap = term_cols-1 < len(raw)
 
@@ -67,8 +67,7 @@ def main():
 
         rendered += raw.lstrip() if did_wrap else raw
         rendered = rendered.replace("\n", CUR_DOWN_ONE + CUR_COL_HOME)
-        write(ERASE_SCREEN + CUR_HOME + rendered
-            + CUR_SET.format(1 + cursor // term_cols, 1 + cursor % term_cols))
+        write(ERASE_SCREEN + CUR_HOME + rendered + CUR_RESTORE)
         flush()
 
     while True:
@@ -158,7 +157,7 @@ def main():
                 break
 
         if not alnum_found:
-            char = char.upper()
+            char = char[0].upper() + char[1:]
 
         sentence = sentence[:cursor] + char + sentence[cursor:]
         cursor += len(char)
