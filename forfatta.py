@@ -173,22 +173,21 @@ args = parser.parse_args()
 init()
 
 try:
+    result = None
     result = main()
+
 finally:
     restore()
+    os.system("clear")
 
-os.system("clear")
+    if result and result.isspace():
+        print(result)
 
-if result.isspace() or result == "":
-    exit()
+        if not args.no_save:
+            timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]\n") if not args.no_timestamp else ""
 
-print(result)
+            with open(args.filename, "a") as file:
+                file.write(timestamp + result + "\n")
 
-if not args.no_save:
-    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]\n") if not args.no_timestamp else ""
-
-    with open(args.filename, "a") as file:
-        file.write(timestamp + result + "\n")
-
-    print("saved to", args.filename)
+            print("saved to", args.filename)
 
