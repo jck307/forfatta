@@ -17,14 +17,18 @@ SPACE_TAB = " " * 4
 OPENING_QUOTE = "»"
 CLOSING_QUOTE = "«"
 
+text = ""
+
 def main():
-    text = ""
+    global text
+
     sentence = ""
     cursor = 0
     in_quote = False
 
     def add_sentence():
-        nonlocal text, sentence, cursor
+        global text
+        nonlocal sentence, cursor
 
         if sentence == "":
             text += "\n"
@@ -39,7 +43,7 @@ def main():
         nonlocal sentence, cursor, in_quote
 
         n = len(SPACE_TAB) if sentence[cursor-len(SPACE_TAB):cursor] == SPACE_TAB else 1
-        if n == 1:
+        if n == 1 and 0 < cursor:
             if sentence[cursor-1] == OPENING_QUOTE:
                 in_quote = False
             elif sentence[cursor-1] == CLOSING_QUOTE:
@@ -70,99 +74,101 @@ def main():
         write(ERASE_SCREEN + CUR_HOME + rendered + CUR_RESTORE)
         flush()
 
-    while True:
-        term_cols, _ = os.get_terminal_size()
-        render(sentence)
-        char = read()
+    try:
+        while True:
+            term_cols, _ = os.get_terminal_size()
+            render(sentence)
+            char = read()
 
-        if char in [ESCAPE, CTRL_C]:
-            add_sentence()
-            break
-
-        elif char == CTRL_P:
-            write(CUR_HIDE)
-            render(text)
-            while read() != CTRL_P:
-                pass
-            write(CUR_SHOW)
-            continue
-
-        elif char == BACKSPACE:
-            backspace()
-            continue
-
-        elif char == CTRL_BACKSPACE:
-            while cursor != 0 and sentence[cursor-1] == " ":
-                backspace()
-            while cursor != 0 and sentence[cursor-1] != " ":
-                backspace()
-            continue
-
-        elif char == RETURN:
-            add_sentence()
-            continue
-
-        elif char == ARROW_LEFT:
-            cursor = max(0, cursor - 1)
-            continue
-
-        elif char == ARROW_RIGHT:
-            cursor = min(len(sentence), cursor + 1)
-            continue
-
-        elif char == CTRL_ARROW_LEFT:
-            try:
-                cursor = sentence.rindex(" ", 0, cursor)
-            except ValueError:
-                cursor = 0
-            continue
-
-        elif char == CTRL_ARROW_RIGHT:
-            try:
-                cursor = sentence.index(" ", cursor+1)
-            except ValueError:
-                cursor = len(sentence)
-            continue
-
-        elif char in HOME:
-            cursor = 0
-            continue
-
-        elif char in END:
-            cursor = len(sentence)
-            continue
-
-        elif char == "\t":
-            char = SPACE_TAB
-        
-        elif char == '"':
-            char = CLOSING_QUOTE if in_quote else OPENING_QUOTE
-            in_quote = not in_quote
-
-        elif char == "-":
-            if cursor != 0 and sentence[cursor-1] == "-":
-                sentence = sentence[:cursor-1] + TANKSTRECK \
-                    + (" " if cursor == 1 else "") + sentence[cursor:]
-                if cursor == 1:
-                    cursor += 1
-                    if text == "" or text.endswith("\n"):
-                        sentence = SPACE_TAB + sentence
-                        cursor += len(SPACE_TAB)
-                continue
-
-        alnum_found = False
-        for prev_char in sentence:
-            if prev_char.isalnum():
-                alnum_found = True
+            if char in [ESCAPE, CTRL_C]:
+                add_sentence()
                 break
 
-        if not alnum_found:
-            char = char[0].upper() + char[1:]
+            elif char == CTRL_P:
+                write(CUR_HIDE)
+                render(text)
+                while read() != CTRL_P:
+                    pass
+                write(CUR_SHOW)
+                continue
 
-        sentence = sentence[:cursor] + char + sentence[cursor:]
-        cursor += len(char)
+            elif char == BACKSPACE:
+                backspace()
+                continue
 
-    return text.replace(SPACE_TAB, "\t").rstrip()
+            elif char == CTRL_BACKSPACE:
+                while cursor != 0 and sentence[cursor-1] == " ":
+                    backspace()
+                while cursor != 0 and sentence[cursor-1] != " ":
+                    backspace()
+                continue
+
+            elif char == RETURN:
+                add_sentence()
+                continue
+
+            elif char == ARROW_LEFT:
+                cursor = max(0, cursor - 1)
+                continue
+
+            elif char == ARROW_RIGHT:
+                cursor = min(len(sentence), cursor + 1)
+                continue
+
+            elif char == CTRL_ARROW_LEFT:
+                try:
+                    cursor = sentence.rindex(" ", 0, cursor)
+                except ValueError:
+                    cursor = 0
+                continue
+
+            elif char == CTRL_ARROW_RIGHT:
+                try:
+                    cursor = sentence.index(" ", cursor+1)
+                except ValueError:
+                    cursor = len(sentence)
+                continue
+
+            elif char in HOME:
+                cursor = 0
+                continue
+
+            elif char in END:
+                cursor = len(sentence)
+                continue
+
+            elif char == "\t":
+                char = SPACE_TAB
+            
+            elif char == '"':
+                char = CLOSING_QUOTE if in_quote else OPENING_QUOTE
+                in_quote = not in_quote
+
+            elif char == "-":
+                if cursor != 0 and sentence[cursor-1] == "-":
+                    sentence = sentence[:cursor-1] + TANKSTRECK \
+                        + (" " if cursor == 1 else "") + sentence[cursor:]
+                    if cursor == 1:
+                        cursor += 1
+                        if text == "" or text.endswith("\n"):
+                            sentence = SPACE_TAB + sentence
+                            cursor += len(SPACE_TAB)
+                    continue
+
+            alnum_found = False
+            for prev_char in sentence:
+                if prev_char.isalnum():
+                    alnum_found = True
+                    break
+
+            if not alnum_found:
+                char = char[0].upper() + char[1:]
+
+            sentence = sentence[:cursor] + char + sentence[cursor:]
+            cursor += len(char)
+
+    finally:
+        text = text.replace(SPACE_TAB, "\t").rstrip()
 
 parser = argparse.ArgumentParser(color=False)
 parser.add_argument("filename", default="output.txt", nargs="?")
@@ -173,21 +179,20 @@ args = parser.parse_args()
 init()
 
 try:
-    result = None
-    result = main()
+    main()
+    os.system("clear")
 
 finally:
     restore()
-    os.system("clear")
 
-    if result and result.isspace():
-        print(result)
+    if text and not text.isspace():
+        print(text)
 
         if not args.no_save:
             timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]\n") if not args.no_timestamp else ""
 
             with open(args.filename, "a") as file:
-                file.write(timestamp + result + "\n")
+                file.write(timestamp + text + "\n")
 
             print("saved to", args.filename)
 
