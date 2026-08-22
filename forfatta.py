@@ -103,28 +103,40 @@ def main():
                     backspace()
                 continue
 
+            elif char == DELETE:
+                if cursor < len(sentence):
+                    sentence = sentence[:cursor] + sentence[cursor+1:]
+                continue
+
+            elif char == CTRL_DELETE:
+                while cursor < len(sentence) and sentence[cursor] == " ":
+                    sentence = sentence[:cursor] + sentence[cursor+1:]
+                while cursor < len(sentence) and sentence[cursor] != " ":
+                    sentence = sentence[:cursor] + sentence[cursor+1:]
+                continue
+
             elif char == RETURN:
                 add_sentence()
                 continue
 
             elif char == ARROW_LEFT:
-                cursor = max(0, cursor - 1)
+                cursor = max(0, cursor-1)
                 continue
 
             elif char == ARROW_RIGHT:
-                cursor = min(len(sentence), cursor + 1)
+                cursor = min(len(sentence), cursor+1)
                 continue
 
             elif char == CTRL_ARROW_LEFT:
                 try:
-                    cursor = sentence.rindex(" ", 0, cursor)
+                    cursor = sentence.rindex(" ", 0, max(0, cursor-1)) + 1
                 except ValueError:
                     cursor = 0
                 continue
 
             elif char == CTRL_ARROW_RIGHT:
                 try:
-                    cursor = sentence.index(" ", cursor+1)
+                    cursor = sentence.index(" ", cursor+1) + 1
                 except ValueError:
                     cursor = len(sentence)
                 continue
@@ -154,6 +166,9 @@ def main():
                             sentence = SPACE_TAB + sentence
                             cursor += len(SPACE_TAB)
                     continue
+
+            elif not char.isprintable():
+                continue
 
             alnum_found = False
             for prev_char in sentence:
