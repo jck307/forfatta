@@ -1,14 +1,6 @@
 # forfatta
 
-```
-   ███              ████      █    █
-  █                █          █    █
-  █              ██████████  ██████████ █████
-██████ ████  █ ███ █       █  █    █         █
-  █   █   ██ ███   █   █████  █    █     █████
-  █   ██   █  █    █   █   █  ██   ██    █   █
-  █    ████   █    █   █████   ████ ████ █████
-```
+![banner](/banner.png?raw=true)
 
 A little terminal utility I made for creative writing.
 
