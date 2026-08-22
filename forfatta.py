@@ -1,10 +1,13 @@
 #!/bin/python
 
 import os
+import sys
 import datetime
 import argparse
 
-os.chdir(os.path.abspath(os.path.dirname(__file__)))
+csfp = os.path.abspath(os.path.dirname(__file__))
+if csfp not in sys.path:
+    sys.path.insert(0, csfp)
 
 from term import *
 from const import *
@@ -18,7 +21,7 @@ BANNER_MARGIN = 1
 BANNER_WIDTH  = 46
 BANNER_HEIGHT = 7
 
-with open("banner.txt") as file:
+with open(os.path.join(csfp, "banner.txt")) as file:
     banner = file.read()
 
 text = ""
