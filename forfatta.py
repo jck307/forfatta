@@ -17,6 +17,13 @@ SPACE_TAB = " " * 4
 OPENING_QUOTE = "»"
 CLOSING_QUOTE = "«"
 
+BANNER_MARGIN = 1
+BANNER_WIDTH  = 46
+BANNER_HEIGHT = 7
+
+with open("banner.txt") as file:
+    banner = file.read()
+
 text = ""
 
 def main():
@@ -25,6 +32,7 @@ def main():
     sentence = ""
     cursor = 0
     in_quote = False
+    char = None
 
     def add_sentence():
         global text
@@ -66,19 +74,33 @@ def main():
                 except ValueError:
                     break
 
-            rendered += raw[:index].rstrip() + CUR_DOWN_ONE + CUR_COL_HOME
+            rendered += raw[:index].rstrip() + CUR_DOWN_ONE + CUR_COL.format(2)
             raw = raw[index:].lstrip()
 
         rendered += raw.lstrip() if did_wrap else raw
-        rendered = rendered.replace("\n", CUR_DOWN_ONE + CUR_COL_HOME)
-        write(ERASE_SCREEN + CUR_HOME + rendered + CUR_RESTORE)
+        rendered = rendered.replace("\n", CUR_DOWN_ONE + CUR_COL.format(2))
+        write(ERASE_SCREEN + CUR_SET.format(2, 2) + rendered + CUR_RESTORE)
         flush()
 
     try:
         while True:
-            term_cols, _ = os.get_terminal_size()
-            render(sentence)
-            char = read()
+            term_cols, term_rows = os.get_terminal_size()
+            term_cols -= 2
+
+            if char is not None:
+                render(sentence)
+                char = read()
+
+            elif BANNER_WIDTH + BANNER_MARGIN * 2 <= term_cols:
+                write(
+                    CUR_HIDE + CUR_SET.format(BANNER_MARGIN+1, BANNER_MARGIN+1) + \
+                    banner.replace("\n", CUR_DOWN_ONE + CUR_COL.format(BANNER_MARGIN+1)) + \
+                    CUR_SET.format(2, 2)
+                )
+                flush()
+                char = read()
+                write(CUR_SHOW)
+                flush()
 
             if char in [ESCAPE, CTRL_C]:
                 add_sentence()
