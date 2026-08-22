@@ -1,13 +1,10 @@
 #!/bin/python
 
 import os
-import sys
 import datetime
 import argparse
 
-csfp = os.path.abspath(os.path.dirname(__file__))
-if csfp not in sys.path:
-    sys.path.insert(0, csfp)
+os.chdir(os.path.abspath(os.path.dirname(__file__)))
 
 from term import *
 from const import *
