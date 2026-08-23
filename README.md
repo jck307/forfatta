@@ -24,10 +24,10 @@ options:
 
 - Navigation: left, right, ctrl+left, ctrl+right, home, end
 - Alternatives: alt+h, alt+l, alt+ctrl+h, alt+ctrl+l, alt+0, alt+'+'
-- See written text (toggle): ctrl-p
-- Deleting: backspace, delete, ctrl-backspace, ctrl-delete
-- Delete whole row: ctrl-y
-- Save and quit: escape, ctrl-c
+- See written text (toggle): ctrl+p
+- Deleting: backspace, delete, ctrl+backspace, ctrl+delete
+- Delete whole row: ctrl+y
+- Save and quit: escape, ctrl+c
 
 ## Features
 
