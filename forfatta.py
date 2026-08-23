@@ -137,37 +137,41 @@ def main():
                     sentence = sentence[:cursor] + sentence[cursor+1:]
                 continue
 
+            elif char == CTRL_Y:
+                sentence = ""
+                continue
+
             elif char == RETURN:
                 add_sentence()
                 continue
 
-            elif char == ARROW_LEFT:
+            elif char in [ARROW_LEFT, ALT + "h"]:
                 cursor = max(0, cursor-1)
                 continue
 
-            elif char == ARROW_RIGHT:
+            elif char in [ARROW_RIGHT, ALT + "l"]:
                 cursor = min(len(sentence), cursor+1)
                 continue
 
-            elif char == CTRL_ARROW_LEFT:
+            elif char in [CTRL_ARROW_LEFT, ALT + CTRL_H]:
                 try:
                     cursor = sentence.rindex(" ", 0, max(0, cursor-1)) + 1
                 except ValueError:
                     cursor = 0
                 continue
 
-            elif char == CTRL_ARROW_RIGHT:
+            elif char in [CTRL_ARROW_RIGHT, ALT + CTRL_L]:
                 try:
                     cursor = sentence.index(" ", cursor+1) + 1
                 except ValueError:
                     cursor = len(sentence)
                 continue
 
-            elif char in HOME:
+            elif char in HOME + [ALT + "0"]:
                 cursor = 0
                 continue
 
-            elif char in END:
+            elif char in END + [ALT + "+"]:
                 cursor = len(sentence)
                 continue
 

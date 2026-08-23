@@ -20,13 +20,20 @@ options:
   --no-timestamp
 ```
 
+## Binds
+
+- Navigation: left, right, ctrl+left, ctrl+right, home, end
+- Alternatives: alt+h, alt+l, alt+ctrl+h, alt+ctrl+l, alt+0, alt+'+'
+- See written text (toggle): ctrl-p
+- Deleting: backspace, delete, ctrl-backspace, ctrl-delete
+- Delete whole row: ctrl-y
+- Save and quit: escape, ctrl-c
+
 ## Features
 
 - Automatic uppercase in the beginning of sentences
 - Automatic insertion of space after sentences
 - Automatic insertion of `.` if punctuation is omitted
-- Ctrl-binds (backspace, arrows, delete)
-- Ctrl-P (a toggle) lets you inspect written text
 - `"` is replaced with `»` and `«` (for opening and closing respectively)
 - Two hyphens (--) are replaced with a dash (–)
 - Files are appended to, not overwritten
