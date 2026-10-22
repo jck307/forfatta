@@ -50,6 +50,9 @@ def main():
     def backspace():
         nonlocal sentence, cursor, in_quote
 
+        if sentence == "":
+            return
+
         n = len(SPACE_TAB) if sentence[cursor-len(SPACE_TAB):cursor] == SPACE_TAB else 1
         if n == 1 and 0 < cursor:
             if sentence[cursor-1] == OPENING_QUOTE:
@@ -115,7 +118,8 @@ def main():
                 continue
 
             elif char == BACKSPACE:
-                backspace()
+                if cursor != 0:
+                    backspace()
                 continue
 
             elif char == CTRL_BACKSPACE:
@@ -230,7 +234,8 @@ finally:
         print(text)
 
         if not args.no_save:
-            timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M]\n") if not args.no_timestamp else ""
+            timestamp = datetime.datetime.now() \
+                .strftime("[%Y-%m-%d %H:%M]\n") if not args.no_timestamp else ""
 
             with open(args.filename, "a") as file:
                 file.write(timestamp + text + "\n")
